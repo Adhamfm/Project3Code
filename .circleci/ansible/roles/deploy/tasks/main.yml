@@ -1,0 +1,15 @@
+- name: Update packages based on package.json to their latest version.
+  npm:
+    state: latest
+
+- name: "install pm2"
+  npm:
+    name: pm2
+    global: yes
+    production: yes
+
+- name: "start web server"
+  shell: |
+
+    pm2 stop default
+    pm2 start npm -- start
