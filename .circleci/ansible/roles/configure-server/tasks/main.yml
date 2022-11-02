@@ -1,0 +1,27 @@
+- name: "install python"
+  unarchive:
+    src: https://github.com/prometheus/node_exporter/releases/download/v0.17.0/node_exporter-0.17.0.linux-amd64.tar.gz
+    dest: /tmp
+    remote_src: yes
+
+- name: "update apt package."
+  become: yes
+  apt:
+    update_cache: yes
+
+- name: "upgrade packages"
+  become: yes
+  apt:
+    upgrade: yes
+
+- name: "install dependencies"
+  apt:
+    name: ["nodejs", "npm"]
+    state: latest
+    update_cache: yes
+
+- name: "install pm2"
+  npm:
+    name: pm2
+    global: yes
+    production: yes
