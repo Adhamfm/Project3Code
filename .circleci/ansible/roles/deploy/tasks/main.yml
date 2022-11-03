@@ -12,13 +12,6 @@
     global: yes
     production: yes
 
-- name: extract artifact
-  become: yes
-  unarchive:
-    src: ~/project/backend_artifact.tar.gz
-    dest: .
-    remote_src: yes
-
 - name: start app
   become: yes
   shell: |
