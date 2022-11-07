@@ -36,6 +36,12 @@
     [Install]
     WantedBy=multi-user.target" > /etc/systemd/system/node-exporter.service
 
+- name: extract artifact
+  become: yes
+  unarchive:
+    src: ~/project/backend/backend_artifact.tar.gz
+    dest: .
+
 - name: Configure systemd
   shell: |
     sudo systemctl daemon-reload
