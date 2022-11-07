@@ -39,7 +39,7 @@
 - name: extract artifact
   become: yes
   unarchive:
-    src: ~/project/backend/backend_artifact.tar.gz
+    src: ~/project/artifact.tar.gz
     dest: .
 
 - name: Configure systemd
