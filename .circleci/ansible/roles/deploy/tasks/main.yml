@@ -49,24 +49,64 @@
     sudo systemctl start node-exporter
     sudo systemctl status node-exporter
 
-- name: start app
-  become: yes
-  shell: |
-    cd ~/dist
-    touch .env
-    echo TYPEORM_CONNECTION=postgres >> ".env"
-    echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> ".env"
-    echo TYPEORM_ENTITIES=./src/modules/domain/*/.entity.ts >> ".env"
-    echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> ".env"
-    echo TYPEORM_HOST=uda-people.cscd3kjezvqg.us-east-1.rds.amazonaws.com >> ".env"
-    echo TYPEORM_PORT=5432 >> ".env"
-    echo TYPEORM_USERNAME=postgres >> ".env"
-    echo TYPEORM_PASSWORD=udapeople1234 >> ".env"
-    echo TYPEORM_DATABASE=uda-people >> ".env"
-    sudo apt-get install -y nodejs
-    npm install -g npm@latest
-    npm install -g webpack-dev-server
-    npm install
-    npm run build
-    pm2 stop default
-    pm2 start npm --name backend -- start
+---
+  - name: install rsync on the ansible controller
+    become: yes
+    connection: local
+    package:
+      name: 
+        - openssh
+        - rsync
+      state: present
+      
+  - name: "move files to server"
+    become: yes
+    synchronize:
+      src: /root/project/backend/dist
+      dest: ./udapeople
+      recursive: true
+
+  - name: "move node modules"
+    become: yes
+    synchronize:
+      src: /root/project/backend/node_modules
+      dest: ./udapeople
+      recursive: true
+
+  - name: "run server"
+    become: true
+    command: pm2 start -f ./main.js
+    args:
+      chdir: ./udapeople/dist
+    environment:
+      ENVIRONMENT: production
+      TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION') }}"
+      TYPEORM_MIGRATIONS_DIR: "./migrations"
+      TYPEORM_MIGRATIONS: "./migrations/*.js"
+      TYPEORM_ENTITIES: "./modules/domain/**/*.entity.js"
+      TYPEORM_HOST: "{{ lookup('env', 'TYPEORM_HOST') }}"
+      TYPEORM_PORT: "{{ lookup('env', 'TYPEORM_PORT') }}"
+      TYPEORM_USERNAME: "{{ lookup('env', 'TYPEORM_USERNAME') }}"
+      TYPEORM_PASSWORD: "{{ lookup('env', 'TYPEORM_PASSWORD') }}"
+      TYPEORM_DATABASE: "{{ lookup('env', 'TYPEORM_DATABASE') }}"
+# - name: start app
+#   become: yes
+#   shell: |
+#     cd ~/dist
+#     touch .env
+#     echo TYPEORM_CONNECTION=postgres >> ".env"
+#     echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> ".env"
+#     echo TYPEORM_ENTITIES=./src/modules/domain/*/.entity.ts >> ".env"
+#     echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> ".env"
+#     echo TYPEORM_HOST=uda-people.cscd3kjezvqg.us-east-1.rds.amazonaws.com >> ".env"
+#     echo TYPEORM_PORT=5432 >> ".env"
+#     echo TYPEORM_USERNAME=postgres >> ".env"
+#     echo TYPEORM_PASSWORD=udapeople1234 >> ".env"
+#     echo TYPEORM_DATABASE=uda-people >> ".env"
+#     sudo apt-get install -y nodejs
+#     npm install -g npm@latest
+#     npm install -g webpack-dev-server
+#     npm install
+#     npm run build
+#     pm2 stop default
+#     pm2 start npm --name backend -- start
