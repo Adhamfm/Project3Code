@@ -93,6 +93,7 @@
   shell: |
     cd ~/dist
     touch .env
+    echo ENVIRONMENT=production > ".env"
     echo TYPEORM_CONNECTION=postgres>> ".env"
     echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> ".env"
     echo TYPEORM_ENTITIES=./src/modules/domain/*/.entity.ts >> ".env"
@@ -101,7 +102,7 @@
     echo TYPEORM_PORT=5432 >> ".env"
     echo TYPEORM_USERNAME=postgres >> ".env"
     echo TYPEORM_PASSWORD=udapeople1234 >> ".env"
-    echo TYPEORM_DATABASE=uda-people >> ".env"
+    echo TYPEORM_DATABASE=database1 >> ".env"
     sudo apt-get install -y nodejs
     npm install -g npm@latest
     npm install -g webpack-dev-server
