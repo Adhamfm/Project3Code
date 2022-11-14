@@ -191,7 +191,7 @@ jobs:
       # Add ssh keys with fingerprint
       - add_ssh_keys:
           fingerprints:
-            - "e2:f8:89:e9:82:de:73:9b:01:54:4c:8a:e6:1c:d7:4a"
+            - "99:60:f8:58:66:f6:72:19:34:de:61:1e:bc:5f:89:60"
       # attach workspace
       - attach_workspace:
           at: ~/
@@ -222,22 +222,22 @@ jobs:
       - checkout
       - restore_cache:
           keys: [backend-build]
-      # - run:
-      #     name: Run migrations
-      #     command: |
-      #       cd backend
-      #       npm install
-      #       # # Run and save the migration output
-      #       npm audit fix
-      #       npm run migrations > migrations_dump.txt
-      # - run:
-      #     name: Send migration results to memstash
-      #     command: |
-      #       if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
-      #       then
-      #         # If you are using kvdb.io, generate the bucket ID "BkX61KzHkje4AXnCuNbFoq" in your local terminal first
-      #         curl https://kvdb.io/BkX61KzHkje4AXnCuNbFoq/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d -k '1'
-      #       fi
+      - run:
+          name: Run migrations
+          command: |
+            cd backend
+            npm install
+            # # Run and save the migration output
+            npm audit fix
+            npm run migrations > migrations_dump.txt
+      - run:
+          name: Send migration results to memstash
+          command: |
+            if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
+            then
+              # If you are using kvdb.io, generate the bucket ID "BkX61KzHkje4AXnCuNbFoq" in your local terminal first
+              curl https://kvdb.io/BkX61KzHkje4AXnCuNbFoq/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d -k '1'
+            fi
      # Here's where you will add some code to rollback on failure      
       - destroy-environment
       - revert-migrations
@@ -302,7 +302,7 @@ jobs:
       # Add ssh keys with fingerprintf
       - add_ssh_keys:
           fingerprints:
-            - "e2:f8:89:e9:82:de:73:9b:01:54:4c:8a:e6:1c:d7:4a"
+            - "99:60:f8:58:66:f6:72:19:34:de:61:1e:bc:5f:89:60"
       # attach workspace
       - attach_workspace:
           at: ~/
@@ -325,6 +325,18 @@ jobs:
           command: |
             # your code here
             cd backend
+            touch .env
+            echo ENVIRONMENT=production > ".env"
+            echo TYPEORM_CONNECTION=postgres >> ".env"
+            echo TYPEORM_ENTITIES=./src/modules/domain/*/.entity.ts >> ".env"
+            echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> ".env"
+            echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> ".env"
+            echo NODE_ENV=production >> ".env"
+            echo TYPEORM_HOST=database1.cq2yyg1bizjg.us-east-1.rds.amazonaws.com >> ".env"
+            echo TYPEORM_PORT=5432 >> ".env"
+            echo TYPEORM_USERNAME=postgres >> ".env"
+            echo TYPEORM_PASSWORD=udapeople1234 >> ".env"
+            echo TYPEORM_DATABASE=database1 >> ".env"
             npm i
             npm run build
             cd ..
